@@ -9,11 +9,11 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String,
-    require: true,
+    required: true,
   },
   owner: {
     type: mongoose.Schema.ObjectId,
-    require: true,
+    required: true,
   },
   likes: [{
     type: mongoose.Schema.ObjectId,
