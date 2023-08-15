@@ -20,7 +20,7 @@ module.exports.deleteCard = (req, res) => Card.findByIdAndDelete(req.params.card
 
 module.exports.createCard = (req, res) => {
   const {
-    name, link, owner, likes, createdAd,
+    name, link, owner = req.user._id, likes, createdAd,
   } = req.body;
 
   return Card.create({
