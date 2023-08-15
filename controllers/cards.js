@@ -10,10 +10,15 @@ module.exports.getAllCards = (req, res) => Card.find({})
   .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 
 module.exports.deleteCard = (req, res) => Card.findByIdAndDelete(req.params.cardId)
-  .then((card) => res.send({ data: card }))
+  .then((card) => {
+    if (card === null) {
+      return res.status(404).send({ message: 'Неправильный ID' });
+    }
+    return res.send({ data: card });
+  })
   .catch((err) => {
     if (err.name === 'CastError') {
-      return res.status(404).send({ message: 'Неправильный ID' });
+      return res.status(400).send({ message: 'Ошибка данных' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
   });
@@ -40,12 +45,15 @@ module.exports.putLikeCard = (req, res) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
-  .then((card) => res.send({ data: card }))
+  .then((card) => {
+    if (card === null) {
+      return res.status(404).send({ message: 'Неправильный ID' });
+    }
+    return res.send({ data: card });
+  })
   .catch((err) => {
     if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
-    } if (err.name === 'ValidationError') {
-      return res.status(404).send({ message: 'Неправильный ID' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
   });
@@ -55,12 +63,15 @@ module.exports.deleteLikeCard = (req, res) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
-  .then((card) => res.send({ data: card }))
+  .then((card) => {
+    if (card === null) {
+      return res.status(404).send({ message: 'Неправильный ID' });
+    }
+    return res.send({ data: card });
+  })
   .catch((err) => {
     if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
-    } if (err.name === 'ValidationError') {
-      return res.status(404).send({ message: 'Неправильный ID' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
   });
