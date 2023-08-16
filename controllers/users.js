@@ -18,7 +18,7 @@ module.exports.getAllUsers = (req, res) => User.find({})
     return res.send({ data: user });
   })
   .catch((err) => {
-    if (err.name === 'CastError') {
+    if (err.name === 'ValidationError') {
       return res.status(400).send({ message: 'Неправильный ID' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
@@ -49,7 +49,7 @@ module.exports.patchUsers = (req, res) => {
       return res.send({ data: user })
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Ошибка данных' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -67,7 +67,7 @@ module.exports.patchAvatar = (req, res) => {
     res.send({ data: user })
   })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Неправильный ID' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
