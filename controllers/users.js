@@ -32,6 +32,7 @@ module.exports.createUser = (req, res) => {
   return User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
+      console.log(err)
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Ошибка данных' });
       }
@@ -44,12 +45,13 @@ module.exports.patchUsers = (req, res) => {
 
   return User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(new Error('UserNotFound'))
-    .then((user) => res.send({ data: user }))
+    .then((user) => { return res.send({ data: user }) })
     .catch((err) => {
+      console.log(err)
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Неправильный ID' });
-      } if (err.message === 'UserNotFound') {
-        return res.status(404).send({ message: 'Ошибка данных' });
+        return res.status(400).send({ message: 'Ошибка данных' });
+      } else if (err.message === 'UserNotFound') {
+        return res.status(404).send({ message: 'Неправильный ID' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
     });
