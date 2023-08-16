@@ -17,7 +17,7 @@ module.exports.deleteCard = (req, res) => Card.findByIdAndDelete(req.params.card
     return res.send({ data: card });
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
@@ -52,7 +52,7 @@ module.exports.putLikeCard = (req, res) => Card.findByIdAndUpdate(
     return res.send({ data: card });
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
@@ -70,7 +70,7 @@ module.exports.deleteLikeCard = (req, res) => Card.findByIdAndUpdate(
     return res.send({ data: card });
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
