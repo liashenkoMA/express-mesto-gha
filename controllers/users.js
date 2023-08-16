@@ -49,7 +49,7 @@ module.exports.patchUsers = (req, res) => {
       return res.send({ data: user })
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Ошибка данных' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
