@@ -1,24 +1,27 @@
 const Card = require('../models/card');
 
 module.exports.getAllCards = (req, res) => Card.find({})
+  .orFail(new Error('cardIsNotFound'))
   .then((cards) => {
-    if (cards === null) {
-      return res.status(404).send({ message: 'Карточки не найдены' });
-    }
     return res.send({ data: cards });
   })
-  .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch(() => {
+    if (err.message === 'cardIsNotFound' ) {
+      return res.status(404).send({ message: 'Карточки не найдены' });
+    }
+    res.status(500).send({ message: 'Произошла ошибка' })
+  });
 
 module.exports.deleteCard = (req, res) => Card.findByIdAndDelete(req.params.cardId)
+  .orFail(new Error('cardIsNotFound'))
   .then((card) => {
-    if (card === null) {
-      return res.status(404).send({ message: 'Неправильный ID' });
-    }
     return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
+    } else if (err.message === 'cardIsNotFound' ) {
+      return res.status(404).send({ message: 'Неправильный ID' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
   });
@@ -31,7 +34,7 @@ module.exports.createCard = (req, res) => {
   return Card.create({
     name, link, owner, likes, createdAd,
   })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Ошибка данных' });
@@ -45,15 +48,15 @@ module.exports.putLikeCard = (req, res) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
+  .orFail(new Error('cardIsNotFound'))
   .then((card) => {
-    if (card === null) {
-      return res.status(404).send({ message: 'Неправильный ID' });
-    }
     return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
+    } else if (err.message === 'cardIsNotFound' ) {
+      return res.status(404).send({ message: 'Неправильный ID' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
   });
@@ -63,15 +66,15 @@ module.exports.deleteLikeCard = (req, res) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
+  .orFail(new Error('cardIsNotFound'))
   .then((card) => {
-    if (card === null) {
-      return res.status(404).send({ message: 'Неправильный ID' });
-    }
     return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Ошибка данных' });
+    } else if (err.message === 'cardIsNotFound' ) {
+      return res.status(404).send({ message: 'Неправильный ID' });
     }
     return res.status(500).send({ message: 'Произошла ошибка' });
   });
