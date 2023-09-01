@@ -24,7 +24,7 @@ module.exports.deleteCard = (req, res, next) => {
         throw new ForbiddenRequest('Нельзя удалить чужую карточку')
       }
 
-      Card.findByIdAndDelete(req.params.cardId)
+      return Card.findByIdAndDelete(req.params.cardId)
         .then((card) => {
           return res.send({ data: card });
         })
