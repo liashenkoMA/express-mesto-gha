@@ -24,12 +24,10 @@ module.exports.deleteCard = (req, res, next) => {
         throw new ForbiddenRequest('Нельзя удалить чужую карточку')
       }
 
-      Card.findByIdAndDelete(req.params.cardId, { new: true })
+      Card.findByIdAndDelete(req.params.cardId)
         .then((card) => {
-          console.log(card)
           return res.send({ data: card });
         })
-        .catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
