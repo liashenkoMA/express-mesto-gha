@@ -17,7 +17,7 @@ router.use('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().uri(),
-    owner: Joi.object().required(),
+    owner: Joi.object(),
     likes: Joi.object(),
     createAt: Joi.date(),
   }).unknown(true),

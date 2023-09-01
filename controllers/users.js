@@ -35,12 +35,14 @@ module.exports.getUser = (req, res, next) => User.findById(req.params.userId)
   });
 
 module.exports.createUser = (req, res, next) => {
+
   const { name, about, avatar, email, password } = req.body;
 
   bcrypt.hash(password, SALT_ROUNDS)
     .then(hash => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
+      console.log(err)
       if (err.name === 'ValidationError') {
         return next(new ValidationError('Ошибка данных'));
       } else if (err.code === 11000) {

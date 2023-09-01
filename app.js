@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const { errors } = require('celebrate');
+const { celebrate, errors, Joi } = require('celebrate');
 
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
@@ -21,10 +21,26 @@ mongoose.connect(DB_URL, {
 app.use(helmet());
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(errors());
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/^(http|https):\/\/(www\.)?[a-zA-Z0-9\--._~:/?#[\]@!$&'()*+,;=]+#?$/),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(2),
+  }).unknown(true),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/^(http|https):\/\/(www\.)?[a-zA-Z0-9\--._~:/?#[\]@!$&'()*+,;=]+#?$/),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(2),
+  }).unknown(true),
+}), createUser);
 app.use(auth, router);
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
