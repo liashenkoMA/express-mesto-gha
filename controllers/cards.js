@@ -1,16 +1,13 @@
 const Card = require('../models/card');
 
 const ForbiddenRequest = require('../errors/ForbiddenRequest');
-const CastError = require('../errors/CastError');
+const BadRequest = require('../errors/BadRequest');
 const NotFoundError = require('../errors/NotFoundErr');
-const ValidationError = require('../errors/ValidationError');
 
 
 module.exports.getAllCards = (req, res, next) => Card.find({})
+  .orFail()
   .then((cards) => {
-    if (cards.length === 0) {
-      throw new NotFoundError('Карточки не найдены')
-    }
     return res.send({ data: cards });
   })
   .catch(next);
@@ -31,7 +28,7 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new CastError('Ошибка данных'));
+        next(new BadRequest('Ошибка данных'));
       } else if (err.name === 'DocumentNotFoundError') {
         next(new NotFoundError('Такой карточки не существует'))
       } else {
@@ -51,7 +48,7 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new ValidationError('Ошибка данных'));
+        return next(new BadRequest('Ошибка данных'));
       }
       next(err);
     });
@@ -68,9 +65,7 @@ module.exports.putLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      next(new CastError('Ошибка данных'));
-    } else if (err.name === 'DocumentNotFoundError') {
-      next(new NotFoundError('Карточки не найдены'));
+      next(new BadRequest('Ошибка данных'));
     } else {
       next(err);
     }
@@ -83,17 +78,11 @@ module.exports.deleteLikeCard = (req, res, next) => Card.findByIdAndUpdate(
 )
   .orFail()
   .then((card) => {
-    if (card === null) {
-      throw new NotFoundError('Карточки не найдены');
-    }
-
     return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      next(new CastError('Ошибка данных'));
-    } else if (err.name === 'DocumentNotFoundError') {
-      next(new NotFoundError('Карточки не найдены'));
+      next(new BadRequest('Ошибка данных'));
     } else {
       next(err);
     }
