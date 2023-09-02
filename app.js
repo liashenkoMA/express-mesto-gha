@@ -37,7 +37,7 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use(auth, router);
 app.use(errors());
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
   res
