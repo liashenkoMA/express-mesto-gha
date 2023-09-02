@@ -16,15 +16,13 @@ module.exports.getAllUsers = (req, res, next) => User.find({})
   .catch(next);
 
 module.exports.getUser = (req, res, next) => User.findById(req.params.userId)
-  .orFail()
+  .orFail(new NotFoundError('Пользователь не найден'))
   .then((user) => {
     return res.send({ data: user });
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequest('Неправильный ID'));
-    } else if (err.name === 'DocumentNotFoundError') {
-      next(new NotFoundError('Пользователь не найден'));
     } else {
       next(err);
     }
@@ -53,34 +51,22 @@ module.exports.patchUsers = (req, res, next) => {
   const { name, about } = req.body;
 
   return User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail()
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       return res.send({ data: user })
     })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFoundError('Пользователь не найден'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 module.exports.patchAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   return User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail()
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.send({ data: user })
     })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFoundError('Пользователь не найден'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -121,11 +107,8 @@ module.exports.getMe = (req, res, next) => {
   }
 
   User.findById(payload._id)
+    .orFail(new NotFoundError('Пользователи не найдены'))
     .then((user) => {
-      if (user === null) {
-        throw new NotFoundError('Пользователи не найдены');
-      }
-
       return res.send({ data: user });
     })
     .catch(next);
