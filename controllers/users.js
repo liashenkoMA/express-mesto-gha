@@ -84,7 +84,7 @@ module.exports.login = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.Error) {
+      if (err instanceof mongoose.Error) {
         next(new UnauthorizedErr('Почта или пароль введены не верно'));
       }
       next(err);
