@@ -38,9 +38,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequest('Ошибка данных'));
+        next(new BadRequest('Ошибка данных'));
       } else if (err.code === 11000) {
-        return next(new ConflictErr('Такая почта уже используется'));
+        next(new ConflictErr('Такая почта уже используется'));
       } else {
         next(err);
       }
