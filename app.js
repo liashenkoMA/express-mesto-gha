@@ -7,7 +7,7 @@ const { celebrate, errors, Joi } = require('celebrate');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const processingErrors = require('./middlewares/processingErrors')
+const processingErrors = require('./middlewares/processingErrors');
 
 const app = express();
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;

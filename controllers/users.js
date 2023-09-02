@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -17,7 +18,7 @@ module.exports.getUser = (req, res, next) => User.findById(req.params.userId)
   .orFail(new NotFoundError('Пользователь не найден'))
   .then((user) => res.send({ data: user }))
   .catch((err) => {
-    if (err.name === 'CastError') {
+    if (err instanceof mongoose.Error.CastError) {
       next(new BadRequest('Неправильный ID'));
     } else {
       next(err);
@@ -37,7 +38,7 @@ module.exports.createUser = (req, res, next) => {
       name: user.name, about: user.about, avatar: user.avatar, email,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequest('Ошибка данных'));
       } else if (err.code === 11000) {
         next(new ConflictErr('Такая почта уже используется'));
@@ -83,7 +84,7 @@ module.exports.login = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'Error') {
+      if (err instanceof mongoose.Error.Error) {
         next(new UnauthorizedErr('Почта или пароль введены не верно'));
       }
       next(err);

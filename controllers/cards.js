@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const Card = require('../models/card');
 
 const ForbiddenRequest = require('../errors/ForbiddenRequest');
@@ -21,7 +23,7 @@ module.exports.deleteCard = (req, res, next) => {
         .then((result) => res.send({ data: result }));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         next(new BadRequest('Ошибка данных'));
       } else {
         next(err);
@@ -39,7 +41,7 @@ module.exports.createCard = (req, res, next) => {
   })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequest('Ошибка данных'));
       } else {
         next(err);
@@ -55,7 +57,7 @@ module.exports.putLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   .orFail(new NotFoundError('Такой карточки не существует'))
   .then((card) => res.send({ data: card }))
   .catch((err) => {
-    if (err.name === 'CastError') {
+    if (err instanceof mongoose.Error.CastError) {
       next(new BadRequest('Ошибка данных'));
     } else {
       next(err);
@@ -70,7 +72,7 @@ module.exports.deleteLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   .orFail(new NotFoundError('Такой карточки не существует'))
   .then((card) => res.send({ data: card }))
   .catch((err) => {
-    if (err.name === 'CastError') {
+    if (err instanceof mongoose.Error.CastError) {
       next(new BadRequest('Ошибка данных'));
     } else {
       next(err);
