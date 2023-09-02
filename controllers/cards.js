@@ -4,35 +4,29 @@ const ForbiddenRequest = require('../errors/ForbiddenRequest');
 const BadRequest = require('../errors/BadRequest');
 const NotFoundError = require('../errors/NotFoundErr');
 
-
 module.exports.getAllCards = (req, res, next) => Card.find({})
   .orFail()
-  .then((cards) => {
-    return res.send({ data: cards });
-  })
+  .then((cards) => res.send({ data: cards }))
   .catch(next);
 
 module.exports.deleteCard = (req, res, next) => {
-
   Card.findById(req.params.cardId)
     .orFail(new NotFoundError('Такой карточки не существует'))
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
-        throw new ForbiddenRequest('Нельзя удалить чужую карточку')
+        throw new ForbiddenRequest('Нельзя удалить чужую карточку');
       }
 
       return Card.findByIdAndDelete(req.params.cardId)
-        .then((card) => {
-          return res.send({ data: card });
-        })
+        .then((result) => res.send({ data: result }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Ошибка данных'));
       } else {
-        next(err)
+        next(err);
       }
-    })
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -46,9 +40,10 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequest('Ошибка данных'));
+        next(new BadRequest('Ошибка данных'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -58,9 +53,7 @@ module.exports.putLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .orFail(new NotFoundError('Такой карточки не существует'))
-  .then((card) => {
-    return res.send({ data: card });
-  })
+  .then((card) => res.send({ data: card }))
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequest('Ошибка данных'));
@@ -75,9 +68,7 @@ module.exports.deleteLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .orFail(new NotFoundError('Такой карточки не существует'))
-  .then((card) => {
-    return res.send({ data: card });
-  })
+  .then((card) => res.send({ data: card }))
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequest('Ошибка данных'));
