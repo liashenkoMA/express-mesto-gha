@@ -15,7 +15,7 @@ module.exports.getAllCards = (req, res, next) => Card.find({})
 module.exports.deleteCard = (req, res, next) => {
 
   Card.findById(req.params.cardId)
-    .orFail()
+    .orFail(new NotFoundError('Такой карточки не существует'))
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenRequest('Нельзя удалить чужую карточку')
@@ -29,8 +29,6 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Ошибка данных'));
-      } else if (err.name === 'DocumentNotFoundError') {
-        next(new NotFoundError('Такой карточки не существует'))
       } else {
         next(err)
       }
@@ -59,7 +57,7 @@ module.exports.putLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
-  .orFail()
+  .orFail(new NotFoundError('Такой карточки не существует'))
   .then((card) => {
     return res.send({ data: card });
   })
@@ -76,7 +74,7 @@ module.exports.deleteLikeCard = (req, res, next) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
-  .orFail()
+  .orFail(new NotFoundError('Такой карточки не существует'))
   .then((card) => {
     return res.send({ data: card });
   })
