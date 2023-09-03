@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundErr');
 const BadRequest = require('../errors/BadRequest');
-const UnauthorizedErr = require('../errors/UnauthorizedErr');
 const ConflictErr = require('../errors/ConflictErr');
 
 const SALT_ROUNDS = 10;
@@ -81,25 +80,16 @@ module.exports.login = (req, res, next) => {
         httpOnly: true,
       });
 
-      res.send(user);
+      res.send({
+        _id: user._id, name: user.name, about: user.about, avatar: user.avatar, email,
+      });
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error) {
-        next(new UnauthorizedErr('Почта или пароль введены не верно'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.getMe = (req, res, next) => {
   const token = req.cookies.jwt;
-  let payload;
-
-  try {
-    payload = jwt.verify(token, 'some-secret-key');
-  } catch (err) {
-    throw new UnauthorizedErr('Необходима авторизация');
-  }
+  const payload = jwt.verify(token, 'some-secret-key');
 
   User.findById(payload._id)
     .orFail(new NotFoundError('Пользователи не найдены'))
