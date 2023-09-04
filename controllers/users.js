@@ -87,12 +87,7 @@ module.exports.login = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getMe = (req, res, next) => {
-  const token = req.cookies.jwt;
-  const payload = jwt.verify(token, 'some-secret-key');
-
-  User.findById(payload._id)
-    .orFail(new NotFoundError('Пользователи не найдены'))
-    .then((user) => res.send({ data: user }))
-    .catch(next);
-};
+module.exports.getMe = (req, res, next) => User.findById(req.user._id)
+  .orFail(new NotFoundError('Пользователи не найдены'))
+  .then((user) => res.send({ data: user }))
+  .catch(next);
