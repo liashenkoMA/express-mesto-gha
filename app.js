@@ -8,6 +8,7 @@ const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const processingErrors = require('./middlewares/processingErrors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
@@ -21,6 +22,7 @@ mongoose.connect(DB_URL, {
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
+app.use(requestLogger);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -37,6 +39,7 @@ app.post('/signup', celebrate({
   }).unknown(true),
 }), createUser);
 app.use(auth, router);
+app.use(errorLogger);
 app.use(errors());
 app.use(processingErrors);
 
